@@ -33,12 +33,36 @@ module MediumMath
   end
 
   def equation_url(latex)
-    # Higher DPI keeps the imported image readable after Medium reprocesses it.
-    CODECOGS_ENDPOINT + CGI.escape("\\dpi{180} #{latex.strip}")
+    # Higher DPI and display style keep the imported image readable after
+    # Medium reprocesses it. CodeCogs treats plus signs as literal operators, so
+    # spaces must be encoded as %20 rather than CGI's application/x-www-form
+    # '+' encoding.
+    encoded_latex = CGI.escape(equation_latex(latex)).gsub("+", "%20")
+    CODECOGS_ENDPOINT + encoded_latex
   end
 
   def equation_alt(latex)
     CGI.escapeHTML(latex.gsub(/\s+/, " ").strip)
+  end
+
+  def equation_latex(latex)
+    normalized = latex.strip.gsub("\\$", "\\text{USD }")
+    normalized = stack_plain_multiline_equation(normalized)
+    "\\dpi{180} \\color{black} \\large \\displaystyle #{normalized}"
+  end
+
+  def stack_plain_multiline_equation(latex)
+    lines = latex.lines.map(&:strip).reject(&:empty?)
+    return latex if lines.length < 2
+    return latex if latex.include?("\\begin{")
+
+    if lines[1].match?(/\A:?=/)
+      rows = ["#{lines[0]} &#{lines[1]}"]
+      rows += lines.drop(2).map { |line| "&\\quad #{line}" }
+      return "\\begin{aligned} #{rows.join(' \\\\ ')} \\end{aligned}"
+    end
+
+    "\\begin{gathered} #{lines.join(' \\\\ ')} \\end{gathered}"
   end
 
   def display_equation(latex)

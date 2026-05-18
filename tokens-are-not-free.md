@@ -90,8 +90,10 @@ The approximation looks like this:
 
 $$
 \text{KV cache bytes}
-= 2 \times \text{layers} \times \text{batch} \times \text{context length}
-\times \text{KV heads} \times \text{head dimension} \times \text{bytes per value}
+= 2 \times \text{layers} \times \
+\text{batch} \times \text{context length} \
+\times \text{KV heads} \times \text{head dimension} \
+ \times \text{bytes per value}
 $$
 
 _(The factor of 2 is for keys and values)._
@@ -109,7 +111,9 @@ With a cloud API, the math is delightfully simple:
 $$
 \begin{aligned}
 \text{Cloud cost}
-&= \left(\frac{\text{input tokens}}{1{,}000{,}000} \times \text{input price}\right) + \left(\frac{\text{output tokens}}{1{,}000{,}000} \times \text{output price}\right) \end{aligned}
+&= \left(\frac{\text{input tokens}}{1{,}000{,}000} \times \text{input price}\right) \\
+&\quad + \left(\frac{\text{output tokens}}{1{,}000{,}000} \times \text{output price}\right)
+\end{aligned}
 $$
 
 But on our own hardware, the exact same compute workload disguises itself:
@@ -187,10 +191,10 @@ The honest way to model local inference is:
 $$
 \begin{aligned}
 \text{Local cost per 1M useful tokens}
-&= \text{energy per 1M tokens}
-+ \text{cooling per 1M tokens} \\
-&\quad + \text{amortised hardware per 1M tokens}
-+ \text{maintenance reserve per 1M tokens} \\
+&= \text{energy per 1M tokens} \\
+&\quad + \text{cooling per 1M tokens} \\
+&\quad + \text{amortised hardware per 1M tokens} \\
+&\quad + \text{maintenance reserve per 1M tokens} \\
 &\quad + \text{operator time allocation}
 \end{aligned}
 $$
@@ -208,8 +212,12 @@ Here, we rent the raw metal and run the serving stack (like vLLM or TGI) ourselv
 $$
 \begin{aligned}
 \text{EC2 self-hosted cost}
-&= \text{GPU instance hours} + \text{EBS storage} + \text{EBS IOPS or throughput} + \text{load balancer hours and usage} \\
-    &\quad + \text{data transfer out} + \text{monitoring and tooling} + \text{engineering time} \end{aligned}
+&= \text{GPU instance hours} + \text{EBS storage} \\
+&\quad + \text{EBS IOPS or throughput} \\
+&\quad + \text{load balancer hours and usage} \\
+&\quad + \text{data transfer out} \\
+&\quad + \text{monitoring and tooling} + \text{engineering time}
+\end{aligned}
 $$
 
 Tokens only affect EC2 costs indirectly. Heavy token volume spikes GPU utilisation, eats our spare capacity, and forces us to spin up more instances. But we aren't billed per token; we're billed per hour. If our instance runs 24/7 without being fully utilised, we are bleeding money.
@@ -220,7 +228,8 @@ Managed services treat the model as a utility API.
 
 $$
 \text{On-demand model cost}
-= (\text{input tokens} \times \text{input rate}+ \text{output tokens} \times \text{output rate})
+= \text{input tokens} \times \text{input rate}
++ \text{output tokens} \times \text{output rate}
 + \text{optional feature charges}
 $$
 
@@ -305,9 +314,12 @@ $$
 $$
 \begin{aligned}
 \text{Local rig 3-year TCO}
-&= \$3{,}500\text{ to }\$5{,}500\ \text{hardware} + \$3{,}000\text{ to }\$4{,}500\ \text{setup allowance} \\
-&\quad + \$4{,}251\ \text{electricity}  + \$1{,}063\text{ to }\$1{,}488\ \text{cooling allowance} \\
-&\quad + \$5{,}400\ \text{app layer} + \$5{,}400\text{ to }\$9{,}900\ \text{maintenance and operator-time reserve} \\
+&= \$3{,}500\text{ to }\$5{,}500\ \text{hardware} \\
+&\quad + \$3{,}000\text{ to }\$4{,}500\ \text{setup allowance} \\
+&\quad + \$4{,}251\ \text{electricity} \\
+&\quad + \$1{,}063\text{ to }\$1{,}488\ \text{cooling allowance} \\
+&\quad + \$5{,}400\ \text{app layer} \\
+&\quad + \$5{,}400\text{ to }\$9{,}900\ \text{maintenance and operator-time reserve} \\
 &\approx \$23{,}000\text{ to }\$31{,}000
 \end{aligned}
 $$
