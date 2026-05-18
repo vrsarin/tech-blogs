@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "davidanson.vscode-markdownlint",
+        "chrischinchilla.vale-vscode",
+        "esbenp.prettier-vscode",
+        "redhat.vscode-yaml",
+        "elijah-potter.harper"
+    ]
+}
