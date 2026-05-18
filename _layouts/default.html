@@ -22,20 +22,6 @@
       defer
       src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
     ></script>
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
-      onload="
-        renderMathInElement(document.body, {
-          delimiters: [
-            { left: '$$', right: '$$', display: true },
-            { left: '\\[', right: '\\]', display: true },
-            { left: '\\(', right: '\\)', display: false },
-          ],
-          throwOnError: false,
-        })
-      "
-    ></script>
     <style>
       /* ── OpenDyslexic (free Kindle accessibility font) ── */
       @font-face {
@@ -776,6 +762,17 @@
         font-size: 1.12em;
         font-weight: 700;
       }
+      .katex-fallback-equation img {
+        display: inline-block;
+        max-width: 100%;
+        height: auto;
+        vertical-align: middle;
+      }
+      .katex-fallback-inline img {
+        display: inline-block;
+        max-height: 1.4em;
+        vertical-align: -0.25em;
+      }
 
       table {
         border-collapse: collapse;
@@ -1138,54 +1135,30 @@
         document.documentElement.classList.add("embed-mode");
       }
 
-      // ── Medium mode: ?medium activates runtime equation rendering via CodeCogs ──
+      function renderKatexFallbacks() {
+        if (query.has("medium") || !window.katex) return;
+
+        document
+          .querySelectorAll("[data-latex-b64]")
+          .forEach(function (el) {
+            var encoded = el.getAttribute("data-latex-b64");
+            var latex = encoded ? decodeURIComponent(escape(atob(encoded))) : "";
+            if (!latex) return;
+
+            katex.render(latex, el, {
+              displayMode: el.getAttribute("data-display") !== "false",
+              throwOnError: false,
+            });
+            el.removeAttribute("data-latex-b64");
+          });
+      }
+
+      window.addEventListener("load", renderKatexFallbacks);
+      renderKatexFallbacks();
+
+      // ── Medium mode: ?medium keeps import-preview equation images visible ──
       if (query.has("medium")) {
         document.documentElement.classList.add("medium-mode");
-
-        (function renderCodeCogsEquations() {
-          function makeEquationFigure(latex) {
-            var normalized = latex.trim();
-            var displayLatex = "\\displaystyle " + normalized;
-            var url = "https://latex.codecogs.com/svg.image?" + encodeURIComponent(displayLatex);
-            var fig = document.createElement("figure");
-            fig.className = "equation";
-            var img = document.createElement("img");
-            img.src = url;
-            img.alt = normalized.replace(/\s+/g, " ");
-            img.className = "equation-img";
-            fig.appendChild(img);
-            return fig;
-          }
-
-          // Case 1: kramdown with math_engine:null outputs <script type="math/tex"> elements
-          document.querySelectorAll('script[type^="math/tex"]').forEach(function(el) {
-            el.parentNode.replaceChild(makeEquationFigure(el.textContent.trim()), el);
-          });
-
-          // Case 2: $$...$$ passed through as plain text nodes
-          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-          var nodes = [], node;
-          while ((node = walker.nextNode())) {
-            var tag = node.parentNode && node.parentNode.tagName;
-            if (tag !== "SCRIPT" && tag !== "STYLE" && tag !== "CODE" && tag !== "PRE") {
-              if (node.textContent.indexOf("$$") !== -1) nodes.push(node);
-            }
-          }
-          nodes.forEach(function(node) {
-            var parts = node.textContent.split(/(\$\$[\s\S]*?\$\$)/);
-            if (parts.length === 1) return;
-            var frag = document.createDocumentFragment();
-            parts.forEach(function(part) {
-              var m = part.match(/^\$\$([\s\S]*?)\$\$$/);
-              if (m) {
-                frag.appendChild(makeEquationFigure(m[1].trim()));
-              } else if (part) {
-                frag.appendChild(document.createTextNode(part));
-              }
-            });
-            node.parentNode.replaceChild(frag, node);
-          });
-        })();
       }
 
       const html = document.documentElement;

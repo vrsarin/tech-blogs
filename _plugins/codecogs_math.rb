@@ -6,6 +6,7 @@
 # writes the HTML.
 
 require "cgi"
+require "base64"
 
 module MediumMath
   CODECOGS_ENDPOINT = "https://latex.codecogs.com/png.image?".freeze
@@ -42,13 +43,31 @@ module MediumMath
   end
 
   def equation_alt(latex)
-    CGI.escapeHTML(latex.gsub(/\s+/, " ").strip)
+    CGI.escapeHTML(plain_text_equation(latex))
+  end
+
+  def encoded_latex(latex)
+    CGI.escapeHTML(Base64.strict_encode64(latex.strip))
+  end
+
+  def plain_text_equation(latex)
+    text = latex.dup
+    text = text.gsub("\\$", "USD ")
+    text = text.gsub(/\\text\{([^{}]*)\}/, "\\1")
+    text = text.gsub(/\\begin\{[^{}]*\}|\\end\{[^{}]*\}/, " ")
+    text = text.gsub(/\\left|\\right|\\quad|\\displaystyle|\\large|\\color\{[^{}]*\}|\\dpi\{[^{}]*\}/, " ")
+    text = text.gsub(/\\times/, " x ")
+    text = text.gsub(/\\approx/, " approx ")
+    text = text.gsub(/\\frac\{([^{}]*)\}\{([^{}]*)\}/, "\\1 / \\2")
+    text = text.gsub(/\\+/, " ")
+    text = text.gsub(/[{}]/, "")
+    text.gsub(/\s+/, " ").strip
   end
 
   def equation_latex(latex)
     normalized = latex.strip.gsub("\\$", "\\text{USD }")
     normalized = stack_plain_multiline_equation(normalized)
-    "\\dpi{180} \\color{black} \\large \\displaystyle #{normalized}"
+    "\\dpi{180} \\color{black} \\displaystyle #{normalized}"
   end
 
   def stack_plain_multiline_equation(latex)
@@ -79,7 +98,21 @@ module MediumMath
     HTML
   end
 
-  def replace_math(html)
+  def katex_fallback_equation(latex)
+    <<~HTML.strip
+      <div class="kdmath katex-fallback-equation" data-latex-b64="#{encoded_latex(latex)}" data-display="true">
+        <img src="#{equation_url(latex)}" alt="#{equation_alt(latex)}" loading="lazy">
+      </div>
+    HTML
+  end
+
+  def katex_fallback_inline_equation(latex)
+    <<~HTML.strip
+      <span class="katex-fallback-inline" data-latex-b64="#{encoded_latex(latex)}" data-display="false"><img src="#{equation_url(latex)}" alt="#{equation_alt(latex)}" loading="lazy"></span>
+    HTML
+  end
+
+  def replace_math_with_images(html)
     html = html.gsub(%r{<div class="kdmath">\s*\$\$(.*?)\$\$\s*</div>}m) do
       display_equation(Regexp.last_match(1))
     end
@@ -90,6 +123,20 @@ module MediumMath
 
     html.gsub(%r{<script type="math/tex">\s*(.*?)\s*</script>}m) do
       inline_equation(Regexp.last_match(1))
+    end
+  end
+
+  def replace_math_with_katex_fallbacks(html)
+    html = html.gsub(%r{<div class="kdmath">\s*\$\$(.*?)\$\$\s*</div>}m) do
+      katex_fallback_equation(Regexp.last_match(1))
+    end
+
+    html = html.gsub(%r{<script type="math/tex;\s*mode=display">\s*(.*?)\s*</script>}m) do
+      katex_fallback_equation(Regexp.last_match(1))
+    end
+
+    html.gsub(%r{<script type="math/tex">\s*(.*?)\s*</script>}m) do
+      katex_fallback_inline_equation(Regexp.last_match(1))
     end
   end
 
@@ -134,8 +181,11 @@ Jekyll::Hooks.register :site, :post_read do |site|
 end
 
 Jekyll::Hooks.register [:pages, :documents], :post_render do |item|
-  next unless item.data["medium_export"]
-
-  item.output = MediumMath.replace_math(item.output)
-  item.output = MediumMath.absolutize_image_sources(item.output, item.site)
+  if item.data["medium_export"]
+    item.output = MediumMath.replace_math_with_images(item.output)
+    item.output = MediumMath.absolutize_image_sources(item.output, item.site)
+  elsif item.data["layout"] == "default"
+    item.output = MediumMath.replace_math_with_katex_fallbacks(item.output)
+    item.output = MediumMath.absolutize_image_sources(item.output, item.site)
+  end
 end
