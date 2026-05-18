@@ -4,3 +4,5 @@ _site/
 .sass-cache/
 .bundle/
 vendor/
+**/*.log
+.DS_Store

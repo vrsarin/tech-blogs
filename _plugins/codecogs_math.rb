@@ -1,15 +1,117 @@
 # _plugins/codecogs_math.rb
 #
-# Converts block LaTeX equations ($$...$$) to CodeCogs SVG <img> tags at
-# Jekyll build time.  The resulting <img> elements:
-#   • render on GitHub Pages as crisp, resolution-independent SVGs
-#   • scale responsively with container width (max-width:100%)
-#   • survive Medium import as real image elements pointing at CodeCogs
-#
-# CodeCogs rendering endpoint:
-#   https://latex.codecogs.com/svg.image?$$raw-latex$$
-# The LaTeX is passed as-is; only HTML-escaped for the src attribute.
+# Medium import does not execute the article page JavaScript, so the runtime
+# ?medium converter is invisible to Medium. This plugin creates static Medium
+# export pages and rewrites rendered LaTeX blocks to image tags before Jekyll
+# writes the HTML.
 
-# LaTeX → CodeCogs conversion is now handled at runtime via JavaScript.
-# The ?medium URL parameter triggers client-side rendering in default.html.
-# This file is intentionally a no-op.
+require "cgi"
+
+module MediumMath
+  CODECOGS_ENDPOINT = "https://latex.codecogs.com/png.image?".freeze
+
+  module_function
+
+  def article_page?(page)
+    page.data["layout"] == "default" && !page.data["medium_export"]
+  end
+
+  def slug_for(page)
+    permalink = page.data["permalink"].to_s
+    parts = permalink.split("/").reject(&:empty?)
+    return parts.last unless parts.empty?
+
+    page.basename_without_ext
+  end
+
+  def medium_permalink_for(page)
+    "/medium/#{slug_for(page)}/"
+  end
+
+  def canonical_path_for(page)
+    page.data["permalink"].to_s.empty? ? page.url : page.data["permalink"]
+  end
+
+  def equation_url(latex)
+    # Higher DPI keeps the imported image readable after Medium reprocesses it.
+    CODECOGS_ENDPOINT + CGI.escape("\\dpi{180} #{latex.strip}")
+  end
+
+  def equation_alt(latex)
+    CGI.escapeHTML(latex.gsub(/\s+/, " ").strip)
+  end
+
+  def display_equation(latex)
+    <<~HTML.strip
+      <figure class="medium-equation">
+        <img src="#{equation_url(latex)}" alt="#{equation_alt(latex)}" loading="lazy">
+      </figure>
+    HTML
+  end
+
+  def inline_equation(latex)
+    <<~HTML.strip
+      <img class="medium-inline-equation" src="#{equation_url(latex)}" alt="#{equation_alt(latex)}" loading="lazy">
+    HTML
+  end
+
+  def replace_math(html)
+    html = html.gsub(%r{<div class="kdmath">\s*\$\$(.*?)\$\$\s*</div>}m) do
+      display_equation(Regexp.last_match(1))
+    end
+
+    html = html.gsub(%r{<script type="math/tex;\s*mode=display">\s*(.*?)\s*</script>}m) do
+      display_equation(Regexp.last_match(1))
+    end
+
+    html.gsub(%r{<script type="math/tex">\s*(.*?)\s*</script>}m) do
+      inline_equation(Regexp.last_match(1))
+    end
+  end
+
+  def absolutize_image_sources(html, site)
+    site_url = site.config["url"].to_s.sub(%r{/+\z}, "")
+    baseurl = site.config["baseurl"].to_s
+    site_root = [site_url, baseurl].join.sub(%r{/+\z}, "")
+
+    html.gsub(%r{(<img\b[^>]*\bsrc=")(/(?!/)[^"]*)(")}i) do
+      path = Regexp.last_match(2)
+      absolute =
+        if !baseurl.empty? && path.start_with?("#{baseurl}/")
+          "#{site_url}#{path}"
+        else
+          "#{site_root}#{path}"
+        end
+
+      "#{Regexp.last_match(1)}#{absolute}#{Regexp.last_match(3)}"
+    end
+  end
+end
+
+Jekyll::Hooks.register :site, :post_read do |site|
+  site.pages.select { |page| MediumMath.article_page?(page) }.each do |source_page|
+    export_page = Jekyll::PageWithoutAFile.new(
+      site,
+      site.source,
+      File.join("medium", MediumMath.slug_for(source_page)),
+      "index.md"
+    )
+
+    export_page.content = source_page.content
+    export_page.data = source_page.data.merge(
+      "layout" => "medium",
+      "medium_export" => true,
+      "canonical_url" => MediumMath.canonical_path_for(source_page),
+      "permalink" => MediumMath.medium_permalink_for(source_page)
+    )
+
+    site.pages << export_page
+  end
+end
+
+Jekyll::Hooks.register [:pages, :documents], :post_render do |item|
+  next unless item.data["medium_export"]
+
+  item.output = MediumMath.replace_math(item.output)
+  item.output = MediumMath.absolutize_image_sources(item.output, item.site)
+end
