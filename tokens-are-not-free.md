@@ -3,7 +3,7 @@ layout: default
 title: "Tokens Are Not Free: The Real Operating Cost of LLM Inference"
 description: "A practical explanation of how tokens drive compute, memory, electricity, cloud spend, and local inference cost."
 date: 2025-03-15
-updated: 2026-05-18
+updated: 2026-05-19
 permalink: /tokens-are-not-free/
 ---
 
@@ -11,7 +11,7 @@ permalink: /tokens-are-not-free/
 
 Tokens aren't just a billing trick invented by cloud providers. They are the most accurate way to measure the actual computational work done by a language model.
 
-There's a persistent myth in the AI community that running a local rig is practically "free" once we've paid off the hardware. It's a nice thought, but it's wrong. Sure, a local setup looks cheaper on our monthly AWS bill—but that's only because the costs are hiding. Once we factor in electricity, cooling, failing parts, engineering hours, and the massive penalty of under-utilised capacity, the gap between our server rack and a managed API shrinks aggressively.
+There's a persistent myth in the AI community that running a local rig is practically "free" once we've paid off the hardware. It's a nice thought, but it's wrong. Sure, a local setup looks cheaper on our monthly AWS bill—but that's only because the costs are hiding. Once we factor in electricity, cooling, failing parts, engineering hours, and the massive penalty of under-utilised capacity, the gap between our server rack and a managed API narrows sharply.
 
 Cloud APIs put the cost right in front of us. Local deployments bury it in our utility bills and our team's lost weekends.
 
@@ -31,7 +31,7 @@ Most conversations about LLM costs start from the wrong end: the hardware.
 
 - How many GPUs do we need?
 - Which cloud instance?
-- Can we get away with used data-center cards?
+- Can we get away with used data-centre cards?
 - Bedrock or self-hosted EC2?
 
 These are valid questions, but asking them first is a mistake. Our very first question should be: **How much text are we actually asking the model to process and generate?**
@@ -40,13 +40,13 @@ That text is measured in tokens. In a transformer model, tokens aren't just for 
 
 Cloud APIs make this painful reality obvious because we pay per token. Local inference obscures it because there isn't a "token fee" on our electricity bill. But the exact same work happened. The cost just moved to a different ledger.
 
-If our organization heavily tracks API token usage but treats local inference as a fixed, "free" resource, our cost model is broken. Local inference is fantastic for privacy, zero-latency network hops, and owning our data. But we shouldn't call the marginal cost zero unless we've actually run the numbers.
+If our organisation heavily tracks API token usage but treats local inference as a fixed, "free" resource, our cost model is broken. Local inference is fantastic for privacy, zero-latency network hops, and owning our data. But we shouldn't call the marginal cost zero unless we've actually run the numbers.
 
 ## What exactly is a token?
 
 A token is the chunk of text a model's tokenizer spits out. It's not quite a character, and it's not quite a word.
 
-For English, a lazy rule of thumb is that one token is about four characters, or 3/4 of a word. But that's all it is—a rule of thumb. The real count swings wildly based on the specific tokenizer, language, code snippets, and punctuation. (If we've ever tokenized mixed-language text or heavy JSON, we know how fast token counts can explode).
+For English, a lazy rule of thumb is that one token is about four characters, or 3/4 of a word. But that's all it is—a rule of thumb. The real count swings wildly based on the specific tokeniser, language, code snippets, and punctuation. (If we've ever tokenised mixed-language text or heavy JSON, we know how fast token counts can explode).
 
 Every request hits two buckets:
 
@@ -66,7 +66,7 @@ This is where the model reads our prompt.
 
 The GPU processes the input tokens and builds out a cache of key and value tensors—the **KV cache**. This cache is the magic that stops the model from having to re-read the entire prompt every time it wants to generate a single new word.
 
-Prefill is highly parallelizable. A modern GPU can chew through a massive prompt in a single burst. But long context still hurts. In standard full-attention transformers, the attention mechanism scales quadratically with context length. Smart kernels (like FlashAttention) and serving tricks reduce the wall-clock penalty, but they don't make long context free.
+Prefill is highly parallelisable. A modern GPU can chew through a massive prompt in a single burst. But long context still hurts. In standard full-attention transformers, the attention mechanism scales quadratically with context length. Smart kernels (like FlashAttention) and serving tricks reduce the wall-clock penalty, but they don't make long context free.
 
 Long context is incredibly useful, but we pay for it.
 
@@ -76,15 +76,23 @@ This is where the model actually generates the answer.
 
 Autoregressive models write in a strict dependency chain. The model cannot confidently output token 500 until token 499 exists.
 
-This bottleneck is why output tokens are priced higher by API providers. Decode is notoriously hard to parallelize across time. We can batch multiple users together, or use speculative decoding to guess ahead, but the fundamental constraint remains: output tokens are generated sequentially.
+This bottleneck is why output tokens are priced higher by API providers. Decode is notoriously hard to parallelise across time. We can batch multiple users together, or use speculative decoding (a technique that predicts upcoming tokens to parallelise generation), but the fundamental constraint remains: output tokens are generated sequentially.
 
 A 500-token answer isn't one operation. It is hundreds of individual forward passes through the model. That is why chatty, verbose agents burn through our budget.
+
+### The Memory Bandwidth Bottleneck
+
+Decode is almost always memory-bandwidth-bound. To generate a single token, the system has to shove the model weights and KV cache through the memory hierarchy.
+
+This is why older hardware often disappoints. Take the NVIDIA Tesla P40: 24GB of VRAM and a 250W power limit looks great on paper. People buy them because the VRAM is dirt cheap. But the GDDR5 memory only pushes ~347 GB/s.
+
+VRAM capacity dictates if the model will _fit_. Memory bandwidth dictates if the model will answer before our user gets bored and closes the tab.
 
 ## The KV cache is a memory hog
 
 During prefill, the model stores state in the KV cache. During decode, new tokens attend to that stored state. It's computationally cheaper than starting from scratch, but it eats VRAM alive.
 
-The cache size grows with context length, batch size, model depth, and head dimension.
+The cache stores the model's hidden states for every token in the prompt so it doesn't recompute them. Longer prompts mean more state to store; larger batches mean more concurrent state sets to keep alive. The cache size grows with context length, batch size, model depth, and head dimension.
 
 The approximation looks like this:
 
@@ -111,8 +119,7 @@ With a cloud API, the math is delightfully simple:
 $$
 \begin{aligned}
 \text{Cloud cost}
-&= \left(\frac{\text{input tokens}}{1{,}000{,}000} \times \text{input price}\right) \\
-&\quad + \left(\frac{\text{output tokens}}{1{,}000{,}000} \times \text{output price}\right)
+&= \left(\frac{\text{input tokens}}{1{,}000{,}000} \times \text{input price}\right) + \left(\frac{\text{output tokens}}{1{,}000{,}000} \times \text{output price}\right)
 \end{aligned}
 $$
 
@@ -155,7 +162,7 @@ That number feels like rounding error. And for one call, it is. But multiply tha
 
 ### Cooling and Maintenance
 
-Every watt our server pulls becomes heat that we have to pay to remove. In a home lab, that's a hotter room and a crying AC unit. In a data center, it's facility cooling limits and Power Usage Effectiveness (PUE) overhead.
+Every watt our server pulls becomes heat that we have to pay to remove. In a home lab, that's a hotter room and a crying AC unit. In a data centre, it's facility cooling limits and Power Usage Effectiveness (PUE) overhead.
 
 And hardware dies. Fans shatter. Risers fail. Thermal stress kills components. If this hardware runs our business, our cost model _must_ include spare parts and the engineering hours required to swap them out. A cheap used GPU gets incredibly expensive if our lead engineer spends three days diagnosing a PCIe bus error instead of shipping features.
 
@@ -207,7 +214,7 @@ If we deploy to AWS, we have two fundamentally different financial models.
 
 ### Self-hosted on EC2
 
-Here, we rent the raw metal and run the serving stack (like vLLM or TGI) ourselves.
+Here, we rent the raw metal and run the serving stack (like vLLM, an open-source inference framework, or TGI, Text Generation Inference) ourselves.
 
 $$
 \begin{aligned}
@@ -252,7 +259,9 @@ Before we buy a mountain of used hardware, we should answer these:
 - Can our motherboard topology actually handle the communication overhead?
 - Who on our team is going to fix this when it breaks?
 
-## A grounded TCO comparison
+## Putting it together: A grounded TCO comparison
+
+All of these principles—tokens, prefill, decode, memory bandwidth, distributed overhead—come together in a single economic model. Here's what that looks like in practice.
 
 This table is directional, not an audited vendor quote, but it proves the point.
 
@@ -314,12 +323,9 @@ $$
 $$
 \begin{aligned}
 \text{Local rig 3-year TCO}
-&= \$3{,}500\text{ to }\$5{,}500\ \text{hardware} \\
-&\quad + \$3{,}000\text{ to }\$4{,}500\ \text{setup allowance} \\
-&\quad + \$4{,}251\ \text{electricity} \\
-&\quad + \$1{,}063\text{ to }\$1{,}488\ \text{cooling allowance} \\
-&\quad + \$5{,}400\ \text{app layer} \\
-&\quad + \$5{,}400\text{ to }\$9{,}900\ \text{maintenance and operator-time reserve} \\
+&= \$3{,}500\text{ to }\$5{,}500\ \text{hardware} + \$3{,}000\text{ to }\$4{,}500\ \text{setup allowance} \\
+&\quad + \$4{,}251\ \text{electricity} + \$1{,}063\text{ to }\$1{,}488\ \text{cooling allowance} \\
+&\quad + \$5{,}400\ \text{app layer} + \$5{,}400\text{ to }\$9{,}900\ \text{maintenance and operator-time reserve} \\
 &\approx \$23{,}000\text{ to }\$31{,}000
 \end{aligned}
 $$
@@ -345,20 +351,22 @@ In my experience, if we want to build a serious cost model, we should stop looki
 
 | Metric                     | Why it matters                                    |
 | -------------------------- | ------------------------------------------------- |
-| Input tokens per request   | Defines our prompt and context overhead          |
-| Output tokens per request  | Defines our generation/reasoning cost            |
-| Cached input tokens        | Proves if our prompt caching is actually working |
+| Input tokens per request   | Defines our prompt and context overhead           |
+| Output tokens per request  | Defines our generation/reasoning cost             |
+| Cached input tokens        | Proves if our prompt caching is actually working  |
 | Time to first token (TTFT) | Exposes prefill bottlenecks and queueing delays   |
 | Tokens per second          | Exposes decode throughput limitations             |
 | Average wall power         | Converts workload straight into utility bills     |
-| GPU memory used            | Warns us before the KV cache chokes the system   |
-| Batch size and concurrency | Explains our utilisation and latency spikes      |
+| GPU memory used            | Warns us before the KV cache chokes the system    |
+| Batch size and concurrency | Explains our utilisation and latency spikes       |
 | Retry rate                 | Converts model stupidity into financial cost      |
 | Human review time          | The ultimate hidden cost that token charts ignore |
 
 Pay close attention to those last two. A "cheap" 8B model that hallucinates, requires complex prompt hand-holding, and forces a human to review every output is not cheap.
 
 **Cost per successful task** is the only number that actually matters. That's the honest accounting.
+
+That same metric is why the memory articles treat retrieval, projection, and forgetting as evaluation problems, not feature checkboxes.
 
 ## Source notes
 

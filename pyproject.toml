@@ -1,7 +1,7 @@
 [project]
-name = "medium-images"
+name = "tech-blogs"
 version = "0.1.0"
-description = "Add your description here"
+description = "Technical blog markdown tooling."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

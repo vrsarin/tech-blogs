@@ -331,7 +331,7 @@ wheels = [
 ]
 
 [[package]]
-name = "medium-images"
+name = "tech-blogs"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

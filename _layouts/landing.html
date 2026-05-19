@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="official">
+<html lang="en" data-theme="sepia">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,55 +12,61 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     /* ── Theme variables ─────────────────────────────
-       Mirrors the four reader themes exactly
+       Mirrors the reader themes exactly
     ──────────────────────────────────────────────── */
-    [data-theme="official"] {
-      --bg:          #0f1b2d;
-      --chrome-bg:   rgba(15,27,45,0.96);
-      --surface:     #162435;
-      --ink:         #faf7f2;
-      --ink-sub:     rgba(250,247,242,0.35);
-      --ink-faint:   rgba(250,247,242,0.15);
-      --amber:       #c8780a;
-      --amber-faint: rgba(200,120,10,0.18);
-      --rule:        rgba(200,120,10,0.18);
-      --font-body:   'Literata', Georgia, serif;
+    html[data-theme="sepia"] {
+      --bg: #f4ede0;
+      --surface: #f4ede0;
+      --ink: #2c1f0e;
+      --muted: #8a7060;
+      --ink-sub: #8a7060;
+      --ink-faint: rgba(44, 31, 14, 0.14);
+      --rule: #d9ccb8;
+      --accent: #8b4513;
+      --amber: #8b4513;
+      --amber-faint: rgba(139, 69, 19, 0.15);
+      --accent2: #c8780a;
+      --code-bg: #ede0cc;
+      --code-fg: #5a2d0c;
+      --chrome-bg: #e8ddd0;
+      --chrome-border: #c8b89a;
+      --font-body: 'Literata', Georgia, serif;
     }
-    [data-theme="sepia"] {
-      --bg:          #f4ede0;
-      --chrome-bg:   rgba(232,221,208,0.96);
-      --surface:     #ede4d4;
-      --ink:         #2c1f0e;
-      --ink-sub:     rgba(44,31,14,0.45);
-      --ink-faint:   rgba(44,31,14,0.14);
-      --amber:       #8b4513;
-      --amber-faint: rgba(139,69,19,0.15);
-      --rule:        rgba(139,69,19,0.2);
-      --font-body:   'Literata', Georgia, serif;
+    html[data-theme="day"] {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --ink: #1a1a1a;
+      --muted: #767676;
+      --ink-sub: #767676;
+      --ink-faint: rgba(26, 26, 26, 0.1);
+      --rule: #e5e5e5;
+      --accent: #0f1b2d;
+      --amber: #0f1b2d;
+      --amber-faint: rgba(15, 27, 45, 0.08);
+      --accent2: #c8780a;
+      --code-bg: #f5f5f5;
+      --code-fg: #8b3a00;
+      --chrome-bg: #f0f0f0;
+      --chrome-border: #ddd;
+      --font-body: 'Literata', Georgia, serif;
     }
-    [data-theme="day"] {
-      --bg:          #ffffff;
-      --chrome-bg:   rgba(240,240,240,0.96);
-      --surface:     #f5f5f5;
-      --ink:         #1a1a1a;
-      --ink-sub:     rgba(26,26,26,0.45);
-      --ink-faint:   rgba(26,26,26,0.1);
-      --amber:       #0f1b2d;
-      --amber-faint: rgba(15,27,45,0.08);
-      --rule:        rgba(26,26,26,0.1);
-      --font-body:   'Literata', Georgia, serif;
-    }
-    [data-theme="night"] {
-      --bg:          #1a1410;
-      --chrome-bg:   rgba(20,16,12,0.96);
-      --surface:     #221c18;
-      --ink:         #d4c9b8;
-      --ink-sub:     rgba(212,201,184,0.4);
-      --ink-faint:   rgba(212,201,184,0.12);
-      --amber:       #c8a060;
-      --amber-faint: rgba(200,160,96,0.12);
-      --rule:        rgba(200,160,96,0.15);
-      --font-body:   'Literata', Georgia, serif;
+    html[data-theme="night"] {
+      --bg: #1a1410;
+      --surface: #1a1410;
+      --ink: #d4c9b8;
+      --muted: #7a6e60;
+      --ink-sub: #7a6e60;
+      --ink-faint: rgba(212, 201, 184, 0.12);
+      --rule: #2e2820;
+      --accent: #c8a060;
+      --amber: #c8a060;
+      --amber-faint: rgba(200, 160, 96, 0.12);
+      --accent2: #c8780a;
+      --code-bg: #241e18;
+      --code-fg: #c8a060;
+      --chrome-bg: #141010;
+      --chrome-border: #2e2820;
+      --font-body: 'Literata', Georgia, serif;
     }
 
     html { scroll-behavior: smooth; }
@@ -78,15 +84,13 @@
     .k-bar {
       position: sticky;
       top: 0;
-      height: 50px;
+      height: 48px;
       background: var(--chrome-bg);
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--rule);
+      border-bottom: 1px solid var(--chrome-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 2rem;
+      padding: 0 1.5rem;
       z-index: 100;
       transition: background 0.3s, border-color 0.3s;
     }
@@ -113,13 +117,13 @@
     }
     .theme-btn {
       font-family: 'Inter', sans-serif;
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       font-weight: 500;
-      color: var(--ink-sub);
+      color: var(--muted);
       background: none;
       border: 1px solid transparent;
       border-radius: 4px;
-      padding: 0.28rem 0.55rem;
+      padding: 0.3rem 0.6rem;
       cursor: pointer;
       transition: color 0.15s, border-color 0.15s, background 0.15s;
       line-height: 1;
@@ -127,11 +131,12 @@
     .theme-btn:hover {
       color: var(--ink);
       border-color: var(--rule);
+      background: var(--bg);
     }
     .theme-btn.active {
-      color: var(--amber);
-      border-color: var(--amber);
-      background: var(--amber-faint);
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--bg);
     }
 
     /* ── Library header ── */
@@ -171,6 +176,46 @@
       color: var(--ink-faint);
       padding-bottom: 0.4rem;
       white-space: nowrap;
+    }
+
+    .landing-intro {
+      max-width: 90%;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 0;
+      color: var(--ink);
+    }
+    .landing-intro h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+      color: var(--ink);
+    }
+    .landing-intro h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin: 1.25rem 0 0.75rem;
+    }
+    .landing-intro p,
+    .landing-intro li {
+      max-width: 56rem;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--ink);
+    }
+    .landing-intro ol {
+      display: grid;
+      gap: 0.55rem;
+      padding-left: 1.35rem;
+    }
+    .landing-intro a {
+      color: var(--accent);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.18em;
     }
 
     /* ── Search ── */
@@ -448,10 +493,9 @@
     <div class="k-logo">{{ site.title | split: ':' | first | strip }}<em>.</em></div>
     <div class="k-bar-right">
       <span class="k-bar-tag">Library&nbsp;&nbsp;</span>
-      <button type="button" class="theme-btn" data-theme="sepia">Sepia</button>
+      <button type="button" class="theme-btn active" data-theme="sepia">Sepia</button>
       <button type="button" class="theme-btn" data-theme="day">Day</button>
       <button type="button" class="theme-btn" data-theme="night">Night</button>
-      <button type="button" class="theme-btn" data-theme="official">Official</button>
     </div>
   </nav>
 
@@ -466,6 +510,12 @@
       {{ articles.size }} title{% if articles.size != 1 %}s{% endif %}
     </div>
   </header>
+
+  {% if content and content != "" %}
+  <section class="landing-intro">
+    {{ content }}
+  </section>
+  {% endif %}
 
   <div class="search-wrap">
     <div class="search-box">
@@ -519,18 +569,20 @@
 
   <script>
     // ── Theme switching ──
+    const themes = ['sepia', 'day', 'night'];
     const themeButtons = document.querySelectorAll('.theme-btn[data-theme]');
 
     function setTheme(t) {
-      document.documentElement.setAttribute('data-theme', t);
-      themeButtons.forEach(b => b.classList.toggle('active', b.dataset.theme === t));
-      localStorage.setItem('reader-theme', t);
+      const theme = themes.includes(t) ? t : 'sepia';
+      document.documentElement.setAttribute('data-theme', theme);
+      themeButtons.forEach(b => b.classList.toggle('active', b.dataset.theme === theme));
+      localStorage.setItem('reader-theme', theme);
     }
 
     themeButtons.forEach(b => b.addEventListener('click', () => setTheme(b.dataset.theme)));
 
     // Apply saved (or default) theme on load
-    setTheme(localStorage.getItem('reader-theme') || 'official');
+    setTheme(localStorage.getItem('reader-theme'));
 
     // ── Sync font from reader ──
     const preloadedFonts = new Set([
@@ -576,14 +628,24 @@
 
     // Pre-computed embeddings from generate_embeddings.py
     let searchIndex     = null;
+    let articleTextByUrl = new Map();
     let embedExtractor  = null;
+    let extractorPromise = null;
     let extractorState  = 'idle'; // idle | loading | ready | failed
     let pendingToken    = null;
 
     // Fetch the search index (built by generate_embeddings.py)
     fetch('{{ site.baseurl }}/assets/search-index.json')
       .then(r => r.json())
-      .then(data => { searchIndex = data; })
+      .then(data => {
+        searchIndex = data;
+        articleTextByUrl = new Map(
+          data.map(item => [
+            item.url,
+            `${item.title || ''} ${item.description || ''} ${item.text || ''}`.toLowerCase(),
+          ])
+        );
+      })
       .catch(() => { /* no index yet — keyword search only */ });
 
     // Dot product of two L2-normalised vectors = cosine similarity
@@ -595,24 +657,31 @@
 
     // Lazy-load Transformers.js + model on first use
     async function getExtractor() {
-      if (embedExtractor)          return embedExtractor;
-      if (extractorState === 'loading') return null; // already in flight
-      if (extractorState === 'failed')  return null;
+      if (embedExtractor) return embedExtractor;
+      if (extractorState === 'failed') return null;
+      if (extractorPromise) return extractorPromise;
+
       extractorState = 'loading';
-      try {
-        const { pipeline, env } = await import(
-          'https://cdn.jsdelivr.net/npm/@xenova/transformers@2/dist/transformers.min.js'
-        );
-        env.allowLocalModels = false;
-        embedExtractor = await pipeline(
-          'feature-extraction', 'Xenova/all-MiniLM-L6-v2', { quantized: true }
-        );
-        extractorState = 'ready';
-        return embedExtractor;
-      } catch (_) {
-        extractorState = 'failed';
-        return null;
-      }
+      extractorPromise = (async () => {
+        try {
+          const { pipeline, env } = await import(
+            'https://cdn.jsdelivr.net/npm/@xenova/transformers@2/dist/transformers.min.js'
+          );
+          env.allowLocalModels = false;
+          embedExtractor = await pipeline(
+            'feature-extraction', 'Xenova/all-MiniLM-L6-v2', { quantized: true }
+          );
+          extractorState = 'ready';
+          return embedExtractor;
+        } catch (_) {
+          extractorState = 'failed';
+          return null;
+        } finally {
+          extractorPromise = null;
+        }
+      })();
+
+      return extractorPromise;
     }
 
     // Embed query and return top-K nearest neighbours (score > threshold)
@@ -635,7 +704,8 @@
       cards.forEach(card => {
         const title = (card.querySelector('.cover-title')?.textContent || '').toLowerCase();
         const desc  = (card.querySelector('.book-desc')?.textContent  || '').toLowerCase();
-        const match = title.includes(ql) || desc.includes(ql);
+        const articleText = articleTextByUrl.get(card.dataset.url) || '';
+        const match = title.includes(ql) || desc.includes(ql) || articleText.includes(ql);
         card.style.display = match ? '' : 'none';
         if (match) visible++;
       });
@@ -690,9 +760,6 @@
       }
 
       setStatus(extractorState === 'ready' ? '⏳ Searching…' : '⏳ Loading AI model…');
-
-      // Preload model in parallel while keyword results are shown
-      if (extractorState === 'idle') getExtractor();
 
       // Unique token so a newer keystroke can cancel this one
       const token = Symbol();

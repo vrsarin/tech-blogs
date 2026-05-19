@@ -6,7 +6,7 @@ Usage:
     python generate_embeddings.py
 
 Output:
-    assets/search-index.json  — array of { url, title, description, embedding }
+    assets/search-index.json  — array of { url, title, description, text, embedding }
 
 The model (all-MiniLM-L6-v2, ~90 MB) is downloaded once and cached by
 sentence-transformers. Embeddings are L2-normalised so dot product equals
@@ -28,6 +28,7 @@ def strip_markdown(text: str) -> str:
     """Remove common markdown syntax for cleaner embedding input."""
     text = re.sub(r'\$\$.*?\$\$', ' ', text, flags=re.DOTALL)   # display math
     text = re.sub(r'\$[^\$\n]+\$', ' ', text)                    # inline math
+    text = re.sub(r'\\{1,2}\(.*?\\{1,2}\)', ' ', text, flags=re.DOTALL)  # escaped inline math
     text = re.sub(r'```.*?```', ' ', text, flags=re.DOTALL)      # fenced code
     text = re.sub(r'`[^`]+`', ' ', text)                         # inline code
     text = re.sub(r'#{1,6}\s+', '', text)                        # headings
@@ -48,6 +49,13 @@ def build_embed_text(title: str, description: str, body: str) -> str:
     """
     clean_body = strip_markdown(body)[:1500]
     return f"{title}\n{title}\n{description}\n{description}\n{clean_body}"
+
+
+def build_search_text(title: str, description: str, body: str) -> str:
+    """Full article text used by the landing-page keyword fallback."""
+    clean_body = strip_markdown(body)
+    text = f"{title}\n{description}\n{clean_body}"
+    return re.sub(r'\s+', ' ', text).strip()
 
 
 # ── Main ────────────────────────────────────────────────────────────────────
@@ -77,6 +85,7 @@ def main():
             'url':         permalink,
             'title':       title,
             'description': description,
+            'text':        build_search_text(title, description, post.content),
             '_embed':      build_embed_text(title, description, post.content),
         })
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="official">
+<html lang="en" data-theme="sepia">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -59,8 +59,7 @@
       }
 
       /* ── Themes ─────────────────────────────────────
-       official : Navy + Ivory + Amber (default)
-       sepia    : warm cream  (Kindle)
+       sepia    : warm cream  (default)
        day      : bright white
        night    : dark
     ──────────────────────────────────────────────── */
@@ -69,21 +68,7 @@
         --font-body: "Literata", Georgia, serif;
       }
 
-      [data-theme="official"] {
-        --bg: #0f1b2d;
-        --surface: #faf7f2;
-        --ink: #1a1612;
-        --muted: #6b6560;
-        --rule: #e0d8cc;
-        --accent: #c8780a;
-        --accent2: #8b3a00;
-        --code-bg: #f0e9df;
-        --code-fg: #8b3a00;
-        --chrome-bg: #0f1b2d;
-        --chrome-border: rgba(200, 120, 10, 0.25);
-      }
-
-      [data-theme="sepia"] {
+      html[data-theme="sepia"] {
         --bg: #f4ede0;
         --surface: #f4ede0;
         --ink: #2c1f0e;
@@ -96,7 +81,7 @@
         --chrome-bg: #e8ddd0;
         --chrome-border: #c8b89a;
       }
-      [data-theme="day"] {
+      html[data-theme="day"] {
         --bg: #ffffff;
         --surface: #ffffff;
         --ink: #1a1a1a;
@@ -109,7 +94,7 @@
         --chrome-bg: #f0f0f0;
         --chrome-border: #ddd;
       }
-      [data-theme="night"] {
+      html[data-theme="night"] {
         --bg: #1a1410;
         --surface: #1a1410;
         --ink: #d4c9b8;
@@ -145,52 +130,6 @@
         transition:
           background 0.3s,
           color 0.3s;
-      }
-
-      /* Official theme — reader floats as ivory card on navy bg */
-      [data-theme="official"] .reader {
-        background: var(--surface);
-        border-radius: 0;
-        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
-        padding-top: 3rem;
-      }
-      [data-theme="official"] .article-meta {
-        background: var(--bg);
-        margin: 0 0 0;
-        padding: 2.5rem 1.5rem 2rem;
-        border-bottom: 3px solid var(--accent);
-        border-radius: 0;
-      }
-      [data-theme="official"] .article-meta h1 {
-        color: #faf7f2;
-      }
-      [data-theme="official"] .article-meta .meta-row {
-        color: rgba(255, 255, 255, 0.4);
-      }
-      [data-theme="official"] .article-meta .meta-row a {
-        color: var(--accent);
-      }
-      [data-theme="official"] #topbar {
-        border-bottom-color: rgba(200, 120, 10, 0.3);
-      }
-      [data-theme="official"] .ctrl-btn {
-        color: rgba(255, 255, 255, 0.4);
-      }
-      [data-theme="official"] .ctrl-btn:hover {
-        color: #faf7f2;
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.15);
-      }
-      [data-theme="official"] .ctrl-btn.active {
-        color: var(--accent);
-        border-color: var(--accent);
-        background: rgba(200, 120, 10, 0.08);
-      }
-      [data-theme="official"] .back-btn {
-        color: var(--accent);
-      }
-      [data-theme="official"] .topbar-title {
-        color: rgba(255, 255, 255, 0.3);
       }
 
       /* ── Top bar ── */
@@ -286,79 +225,6 @@
         background: var(--bg);
       }
 
-      /* ── Edit mode (?edit) ── */
-      .edit-toolbar {
-        position: fixed;
-        right: 1rem;
-        bottom: 1rem;
-        z-index: 500;
-        display: none;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.5rem;
-        border-radius: 8px;
-        background: var(--chrome-bg);
-        border: 1px solid var(--chrome-border);
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
-      }
-
-      .edit-mode .edit-toolbar {
-        display: flex;
-      }
-
-      .edit-pill {
-        position: fixed;
-        top: 56px;
-        right: 1rem;
-        z-index: 500;
-        display: none;
-        font-family: "Inter", sans-serif;
-        font-size: 0.66rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--accent);
-        border: 1px solid var(--accent);
-        border-radius: 999px;
-        padding: 0.25rem 0.5rem;
-        background: var(--surface);
-      }
-
-      .edit-mode .edit-pill {
-        display: inline-flex;
-      }
-
-      .edit-mode .reader-body {
-        outline: 2px dashed var(--accent);
-        outline-offset: 12px;
-      }
-
-      .edit-mode .reader-body[contenteditable="true"]:focus {
-        outline-color: var(--accent2);
-      }
-
-      .edit-btn {
-        font-family: "Inter", sans-serif;
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: var(--muted);
-        background: transparent;
-        border: 1px solid var(--rule);
-        border-radius: 6px;
-        padding: 0.38rem 0.55rem;
-        cursor: pointer;
-      }
-
-      .edit-btn:hover {
-        color: var(--ink);
-        border-color: var(--accent);
-      }
-
-      .edit-btn.primary {
-        color: var(--accent);
-        border-color: var(--accent);
-      }
-
       .ctrl-sep {
         width: 1px;
         height: 18px;
@@ -393,53 +259,13 @@
         color: var(--ink);
       }
       /* Per-theme dropdown background so native options are readable */
-      [data-theme="official"] #font-picker {
-        background: #1e2a3a;
-        color: #faf7f2;
-        border-color: rgba(200, 120, 10, 0.4);
-      }
-      [data-theme="official"] #font-picker:hover {
-        border-color: var(--accent);
-      }
-      [data-theme="night"] #font-picker {
+      html[data-theme="night"] #font-picker {
         background: #241e18;
         color: #d4c9b8;
         border-color: #2e2820;
       }
-      [data-theme="night"] #font-picker:hover {
+      html[data-theme="night"] #font-picker:hover {
         border-color: var(--accent);
-      }
-
-      /* ── Math equations (CodeCogs SVG) — active only in ?medium mode ──── */
-      .medium-mode figure.equation {
-        margin: 1.75rem 0 2rem;
-        padding: 0.2rem 0;
-        border-left: none;
-        background: none;
-        overflow-x: auto;
-        text-align: center;
-        font-weight: 700;
-      }
-      .medium-mode figure.equation .equation-img {
-        max-width: none;
-        height: auto;
-        display: inline-block;
-        vertical-align: middle;
-        zoom: 1.36;
-        mix-blend-mode: multiply;
-        filter: drop-shadow(0 0 0.55px rgba(0, 0, 0, 0.95));
-      }
-      /* Night theme: invert ink, then use screen blend so white bg disappears on dark surface */
-      .medium-mode [data-theme="night"] figure.equation .equation-img {
-        mix-blend-mode: screen;
-        filter: invert(1) drop-shadow(0 0 0.4px rgba(255, 255, 255, 0.85));
-      }
-      /* In medium mode, CodeCogs handles the equation image; keep the wrapper neutral. */
-      .medium-mode .kdmath {
-        border: none;
-        background: none;
-        padding: 0;
-        margin: 0;
       }
 
       /* ── TOC drawer ── */
@@ -719,34 +545,8 @@
         margin-bottom: 0;
       }
 
-      .provenance-note {
-        margin: 1.25rem 0 1.8rem;
-        padding: 0.35rem 0 0.35rem 1.25rem;
-        border-left: 3px solid var(--accent2);
-        font-size: 0.9em;
-        font-style: normal;
-        font-weight: 400;
-        line-height: 1.65;
-        color: var(--muted);
-      }
-      .provenance-note strong:first-child {
-        font-weight: 800;
-        color: var(--ink);
-      }
-
-      .equation-legend {
-        margin: -1.25rem 0 1.45rem;
-        font-size: 0.88em;
-        line-height: 1.55;
-        color: var(--muted);
-      }
-      .equation-legend strong:first-child {
-        font-weight: 800;
-        color: var(--ink);
-      }
-
       .kdmath {
-        overflow-x: auto;
+        overflow: visible;
         margin: 1.75rem 0 2rem;
         padding: 0.2rem 0;
         background: none;
@@ -757,10 +557,18 @@
       }
       .kdmath .katex-display {
         margin: 0;
+        overflow: visible;
+      }
+      .kdmath .katex-display > .katex {
+        max-width: 100%;
+        overflow: visible;
       }
       .kdmath .katex {
         font-size: 1.12em;
         font-weight: 700;
+      }
+      .kdmath .katex-html {
+        overflow: visible;
       }
       .katex-fallback-equation img {
         display: inline-block;
@@ -773,7 +581,6 @@
         max-height: 1.4em;
         vertical-align: -0.25em;
       }
-
       table {
         border-collapse: collapse;
         width: 100%;
@@ -963,9 +770,6 @@
         opacity: 1;
         color: var(--accent) !important;
       }
-      [data-theme="official"] .reset-btn {
-        color: rgba(255, 255, 255, 0.4);
-      }
 
       /* ── Responsive ── */
       @media (max-width: 640px) {
@@ -977,28 +781,18 @@
         }
       }
 
-      /* ── Embed / standalone modes (?embed, ?medium) ──
-       Append ?embed or ?medium to any article URL to strip all chrome.
+      /* ── Embed / standalone mode (?embed) ──
+       Append ?embed to any article URL to strip all chrome.
        Useful for article-only views, iframes, or other apps.
     ── */
       .embed-mode #topbar,
-      .medium-mode #topbar,
       .embed-mode #reader-footer,
-      .medium-mode #reader-footer,
       .embed-mode #toc-overlay,
-      .medium-mode #toc-overlay,
       .embed-mode #toc-drawer {
         display: none !important;
       }
 
-      .medium-mode #toc-drawer,
-      .medium-mode .edit-pill,
-      .medium-mode .edit-toolbar {
-        display: none !important;
-      }
-
-      .embed-mode .reader,
-      .medium-mode .reader {
+      .embed-mode .reader {
         padding-top: 2rem;
         padding-bottom: 3rem;
       }
@@ -1043,7 +837,12 @@
         <select id="font-picker" title="Font family"></select>
         <span class="ctrl-sep"></span>
         <!-- Theme -->
-        <button type="button" class="ctrl-btn" id="theme-sepia" title="Sepia">
+        <button
+          type="button"
+          class="ctrl-btn active"
+          id="theme-sepia"
+          title="Sepia"
+        >
           Sepia
         </button>
         <button type="button" class="ctrl-btn" id="theme-day" title="Day">
@@ -1051,14 +850,6 @@
         </button>
         <button type="button" class="ctrl-btn" id="theme-night" title="Night">
           Night
-        </button>
-        <button
-          type="button"
-          class="ctrl-btn active"
-          id="theme-official"
-          title="Official"
-        >
-          Official
         </button>
         <span class="ctrl-sep"></span>
         <button
@@ -1112,21 +903,6 @@
       <span class="foot-pct" id="foot-pct">0%</span>
     </div>
 
-    <div class="edit-pill" id="edit-pill">Edit Mode</div>
-    <div class="edit-toolbar" id="edit-toolbar" aria-label="Edit controls">
-      <button type="button" class="edit-btn primary" id="edit-save-btn">
-        Save draft
-      </button>
-      <button type="button" class="edit-btn" id="edit-disk-btn">
-        Save to disk
-      </button>
-      <button type="button" class="edit-btn" id="edit-copy-btn">Copy</button>
-      <button type="button" class="edit-btn" id="edit-revert-btn">
-        Revert
-      </button>
-      <button type="button" class="edit-btn" id="edit-clear-btn">Clear</button>
-    </div>
-
     <script>
       const query = new URLSearchParams(window.location.search);
 
@@ -1136,7 +912,7 @@
       }
 
       function renderKatexFallbacks() {
-        if (query.has("medium") || !window.katex) return;
+        if (!window.katex) return;
 
         document
           .querySelectorAll("[data-latex-b64]")
@@ -1156,11 +932,6 @@
       window.addEventListener("load", renderKatexFallbacks);
       renderKatexFallbacks();
 
-      // ── Medium mode: ?medium keeps import-preview equation images visible ──
-      if (query.has("medium")) {
-        document.documentElement.classList.add("medium-mode");
-      }
-
       const html = document.documentElement;
       const fill = document.getElementById("reader-progress-fill");
       const track = document.getElementById("reader-progress-track");
@@ -1175,118 +946,6 @@
       const drawer = document.getElementById("toc-drawer");
       const overlay = document.getElementById("toc-overlay");
       const readerBody = document.querySelector(".reader-body");
-
-      // ── Edit mode: ?edit makes article content editable in-browser ──
-      if (query.has("edit") && readerBody) {
-        html.classList.add("edit-mode");
-
-        const storageKey = `edit-draft:${window.location.pathname}`;
-        const original = readerBody.innerHTML;
-        const savedDraft = localStorage.getItem(storageKey);
-
-        if (savedDraft) {
-          readerBody.innerHTML = savedDraft;
-        }
-
-        readerBody.setAttribute("contenteditable", "true");
-        readerBody.setAttribute("spellcheck", "true");
-
-        const saveBtn = document.getElementById("edit-save-btn");
-        const diskBtn = document.getElementById("edit-disk-btn");
-        const copyBtn = document.getElementById("edit-copy-btn");
-        const revertBtn = document.getElementById("edit-revert-btn");
-        const clearBtn = document.getElementById("edit-clear-btn");
-
-        const saveDraft = () => {
-          localStorage.setItem(storageKey, readerBody.innerHTML);
-          saveBtn.textContent = "Saved";
-          setTimeout(() => {
-            saveBtn.textContent = "Save draft";
-          }, 900);
-        };
-
-        saveBtn.addEventListener("click", saveDraft);
-
-        const saveToDisk = async () => {
-          const htmlDoc = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8" />\n<meta name="viewport" content="width=device-width, initial-scale=1" />\n<title>${document.title}</title>\n</head>\n<body>\n${readerBody.innerHTML}\n</body>\n</html>\n`;
-
-          // Preferred path on Chromium-based browsers.
-          if ("showSaveFilePicker" in window) {
-            try {
-              const handle = await window.showSaveFilePicker({
-                suggestedName: `${window.location.pathname.split("/").filter(Boolean).pop() || "article"}.html`,
-                types: [
-                  {
-                    description: "HTML file",
-                    accept: { "text/html": [".html"] },
-                  },
-                ],
-              });
-              const writable = await handle.createWritable();
-              await writable.write(htmlDoc);
-              await writable.close();
-              diskBtn.textContent = "Saved";
-              setTimeout(() => {
-                diskBtn.textContent = "Save to disk";
-              }, 1000);
-              return;
-            } catch (_) {
-              // User cancellation or blocked API falls back to download.
-            }
-          }
-
-          // Fallback for browsers without File System Access API.
-          const blob = new Blob([htmlDoc], { type: "text/html;charset=utf-8" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `${window.location.pathname.split("/").filter(Boolean).pop() || "article"}.html`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(url);
-          diskBtn.textContent = "Downloaded";
-          setTimeout(() => {
-            diskBtn.textContent = "Save to disk";
-          }, 1000);
-        };
-
-        diskBtn.addEventListener("click", saveToDisk);
-
-        copyBtn.addEventListener("click", async () => {
-          try {
-            await navigator.clipboard.writeText(readerBody.innerText);
-            copyBtn.textContent = "Copied";
-            setTimeout(() => {
-              copyBtn.textContent = "Copy";
-            }, 900);
-          } catch (_) {
-            copyBtn.textContent = "Copy failed";
-            setTimeout(() => {
-              copyBtn.textContent = "Copy";
-            }, 1200);
-          }
-        });
-
-        revertBtn.addEventListener("click", () => {
-          readerBody.innerHTML = original;
-        });
-
-        clearBtn.addEventListener("click", () => {
-          localStorage.removeItem(storageKey);
-          clearBtn.textContent = "Cleared";
-          setTimeout(() => {
-            clearBtn.textContent = "Clear";
-          }, 900);
-        });
-
-        window.addEventListener("keydown", (e) => {
-          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-            e.preventDefault();
-            saveDraft();
-          }
-        });
-      }
 
       // ── Build TOC from h2s ──
       const headings = document.querySelectorAll(".reader-body h2");
@@ -1508,7 +1167,7 @@
       const loadedGoogleFonts = new Set([...preloadedWebFonts]);
 
       const fontLabels = {
-        Literata: "Literata — Official",
+        Literata: "Literata (default)",
         OpenDyslexic: "OpenDyslexic (Kindle accessibility)",
         Bitter: "Bitter (≈ Caecilia)",
         Carlito: "Carlito (≈ Calibri)",
@@ -1749,7 +1408,7 @@
       })();
 
       // ── Theme ──
-      const themes = ["official", "sepia", "day", "night"];
+      const themes = ["sepia", "day", "night"];
       const themeButtons = themes.map((t) =>
         document.getElementById("theme-" + t),
       );
@@ -1761,8 +1420,9 @@
           localStorage.setItem("reader-theme", t);
         });
       });
-      // Restore saved theme, default to official
-      const saved = localStorage.getItem("reader-theme") || "official";
+      // Restore saved theme, default to sepia
+      const storedTheme = localStorage.getItem("reader-theme");
+      const saved = themes.includes(storedTheme) ? storedTheme : "sepia";
       html.setAttribute("data-theme", saved);
       themeButtons.forEach((b) => b.classList.remove("active"));
       const savedBtn = document.getElementById("theme-" + saved);
@@ -1777,9 +1437,9 @@
         // Font family
         applyFont("Literata");
         // Theme
-        html.setAttribute("data-theme", "official");
+        html.setAttribute("data-theme", "sepia");
         themeButtons.forEach((b) => b.classList.remove("active"));
-        document.getElementById("theme-official").classList.add("active");
+        document.getElementById("theme-sepia").classList.add("active");
         localStorage.removeItem("reader-theme");
       });
 
