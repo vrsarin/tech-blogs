@@ -22,6 +22,10 @@
       defer
       src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
     ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"
+    ></script>
     <style>
       /* ── OpenDyslexic (free Kindle accessibility font) ── */
       @font-face {
@@ -567,6 +571,20 @@
         font-size: 1.12em;
         font-weight: 700;
       }
+      .math-symbol-map .kdmath {
+        margin: 1.25rem 0 1.5rem;
+        font-weight: 400;
+      }
+      .math-symbol-map .kdmath .katex {
+        font-size: 0.88em;
+        font-weight: 400;
+      }
+      .math-symbol-map .kdmath .katex * {
+        font-weight: 400 !important;
+      }
+      .math-symbol-map .katex-fallback-equation img {
+        max-width: 92%;
+      }
       .kdmath .katex-html {
         overflow: visible;
       }
@@ -580,6 +598,21 @@
         display: inline-block;
         max-height: 1.4em;
         vertical-align: -0.25em;
+      }
+      .mermaid {
+        background: var(--code-bg);
+        color: var(--ink);
+        font-family: "Inter", sans-serif;
+        padding: 1.5rem 1.75rem;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 2rem 0;
+        border-left: 3px solid var(--accent2);
+        text-align: center;
+      }
+      .mermaid svg {
+        max-width: 100%;
+        height: auto;
       }
       table {
         border-collapse: collapse;
@@ -931,6 +964,53 @@
 
       window.addEventListener("load", renderKatexFallbacks);
       renderKatexFallbacks();
+
+      function renderMermaidDiagrams() {
+        if (!window.mermaid || window.__mermaidRendered) return;
+
+        document.querySelectorAll("pre > code.language-mermaid").forEach((code) => {
+          const pre = code.parentElement;
+          const diagram = document.createElement("div");
+          diagram.className = "mermaid";
+          diagram.textContent = code.textContent;
+          pre.replaceWith(diagram);
+        });
+
+        if (!document.querySelector(".mermaid")) return;
+
+        window.mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: "strict",
+          theme: "base",
+          themeCSS: `
+            .node rect, .node polygon, .node circle, .node ellipse {
+              fill: var(--code-bg) !important;
+              stroke: var(--accent) !important;
+            }
+            .nodeLabel, .edgeLabel, .label {
+              color: var(--ink) !important;
+              fill: var(--ink) !important;
+              font-family: Inter, sans-serif !important;
+            }
+            .edgeLabel, .labelBkg {
+              background-color: var(--code-bg) !important;
+              fill: var(--code-bg) !important;
+            }
+            .edgePath .path, .flowchart-link {
+              stroke: var(--accent) !important;
+            }
+            marker path {
+              fill: var(--accent) !important;
+              stroke: var(--accent) !important;
+            }
+          `,
+        });
+        window.mermaid.run({ querySelector: ".mermaid" });
+        window.__mermaidRendered = true;
+      }
+
+      window.addEventListener("load", renderMermaidDiagrams);
+      renderMermaidDiagrams();
 
       const html = document.documentElement;
       const fill = document.getElementById("reader-progress-fill");
